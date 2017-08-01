@@ -25,3 +25,9 @@ vagrant up
 ```
 
 Three command lines to deploy the entire stack: install and configure an Ubuntu 16.04 virtual machine with postgresql, postgis, nodeJS, pm2, nginx and the mangal apps (orcid-oauth2 and mangal-api).
+
+### Connect to the VM
+
+```
+vagrant ssh
+```
