@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # No need to sync the vagrant folder, everything gets deployed
+  # with the ansible playbook -- VM seflcontained
+  config.vm.synced_folder '.', "/vagrant",disabled: true
+
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    vb.gui = false
+  end
+
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
+end
