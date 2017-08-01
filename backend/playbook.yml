@@ -1,0 +1,101 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars:
+    packages:
+     - postgresql-9.5-postgis-2.2
+     - libpq-dev
+     - python-psycopg2
+     - nodejs-legacy
+     - npm
+
+    dbs:
+     - mangal
+     - mangal_test
+     - mangal_dev
+
+  pre_tasks:
+    - name: create mangal group
+      group: name=mangal state=present
+    - name: create mangal user
+      user: name=mangal comment="Mangal User" group=mangal home=/var/mangal
+    - name: create node mangal apps directory
+      file: path=/var/mangal state=directory owner=mangal group=mangal mode=0775
+    - name: Pull orcid-oauth2 from the repository
+      git:
+        repo: https://github.com/mangal-wg/orcid-oauth2.git
+        dest: /var/mangal/orcid-oauth2
+    - name: Pull backend from the repository
+      git:
+        repo: https://github.com/mangal-wg/mangal-backend.git
+        dest: /var/mangal/mangal-api
+    - name: Install PostgreSQL and Nodejs dependancies
+      apt: name="{{ item }}"
+      with_items: "{{ packages }}"
+    - name: Install packages on mangal-api based on package.json.
+      npm:
+        path: /var/mangal/mangal-api
+    - name: Install packages on orcid-oauth2 based on package.json.
+      npm:
+        path: /var/mangal/orcid-oauth2
+    - name: Create postgres user
+      become: true
+      become_user: postgres
+      postgresql_user:
+        db: postgres
+        name: postgres
+        role_attr_flags: CREATEDB,SUPERUSER
+        priv: ALL
+    - name: Create mangal_bot user
+      become: true
+      become_user: postgres
+      postgresql_user:
+        name: mangal_bot
+    - name: Create postgresql database
+      become: true
+      become_user: postgres
+      postgresql_db: name="{{ item }}"
+      with_items: "{{ dbs }}"
+    - name: Add Postgis extensions
+      become: true
+      become_user: postgres
+      postgresql_ext: name=postgis db="{{ item }}"
+      with_items: "{{ dbs }}"
+    - name: Install pm2
+      npm:
+        name: pm2
+        global: yes
+    - name: Install nginx
+      apt: name=nginx state=present update_cache=yes
+      notify:
+        - start nginx
+
+
+  tasks:
+    - name: stop mangal apps
+      command: pm2 delete all
+      become: true
+      become_user: mangal
+      ignore_errors: yes
+    - name: start orcid-oauth2
+      command: pm2 start /var/mangal/orcid-oauth2/index.js --name orcid-oauth2
+      become: true
+      become_user: mangal
+    - name: start mangal-api
+      command: pm2 start /var/mangal/mangal-api/index.js --name mangal-api
+      become: true
+      become_user: mangal
+    - name: installing startup script
+      become: yes
+      become_method: sudo
+      shell: env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u mangal --hp /var/mangal
+      notify:
+        - start pm2
+
+
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started
+    - name: start pm2
+      service: name=pm2-mangal.service state=started
