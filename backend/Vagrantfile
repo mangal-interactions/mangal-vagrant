@@ -10,9 +10,6 @@ Vagrant.configure(2) do |config|
   # with the ansible playbook -- VM seflcontained
   config.vm.synced_folder '.', "/vagrant",disabled: true
 
-  # Copy your git config from the host to the vm
-  config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
-
   config.vm.provider "virtualbox" do |vb|
     # Display the VirtualBox GUI when booting the machine
     vb.gui = false
