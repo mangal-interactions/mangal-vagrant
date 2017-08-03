@@ -75,6 +75,12 @@
       apt: name=nginx state=present update_cache=yes
       notify:
         - start nginx
+    - name: configure nginx
+      copy: src={{ item }} dest=/etc/nginx/sites-available/
+      with_fileglob:
+        - nginx/*
+      notify:
+        - restart nginx
 
 
   tasks:
@@ -88,6 +94,7 @@
       environment:
         ORCID_CLIENTID: APP-HJN4KBNVFLA8E1W5
         ORCID_CLIENTSECRET: d47156b3-5a8d-4da3-bc28-8cc204165243
+        ORCID_CALLBACK: http://localhost/auth/callback
         PORT_MANGAL_OAUTH: 3001
       become: true
       become_user: mangal
@@ -106,6 +113,8 @@
 
 
   handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
     - name: start nginx
       service: name=nginx state=started
     - name: start pm2
