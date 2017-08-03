@@ -1,0 +1,12 @@
+---
+packages:
+ - postgresql-9.5-postgis-2.2
+ - libpq-dev
+ - python-psycopg2
+ - nodejs-legacy
+ - npm
+
+dbs:
+ - mangal
+ - mangal_test
+ - mangal_dev

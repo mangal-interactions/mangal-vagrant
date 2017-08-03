@@ -1,3 +1,4 @@
 *.retry
 .Vagrant
 .DS_Store
+.vault-pass
