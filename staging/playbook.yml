@@ -2,6 +2,11 @@
 - hosts: all
   become: yes
   become_method: sudo
+
+  environment:
+    PGPASSFILE: /var/mangal/.pgpass
+    NODE_ENV: development
+
   vars:
     packages:
      - postgresql-9.5-postgis-2.2
@@ -15,6 +20,7 @@
      - mangal_test
      - mangal_dev
 
+    db_pass: 3cho^
 
   pre_tasks:
     - name: create mangal group
@@ -50,6 +56,7 @@
       postgresql_user:
         db: postgres
         name: postgres
+        password: "{{ db_pass }}"
         role_attr_flags: CREATEDB,SUPERUSER
         priv: ALL
     - name: Create mangal_bot user
@@ -57,11 +64,19 @@
       become_user: postgres
       postgresql_user:
         name: mangal_bot
+        password: "{{ db_pass }}"
     - name: Create postgresql database
       become: true
       become_user: postgres
       postgresql_db: name="{{ item }}"
       with_items: "{{ dbs }}"
+    - name: setup .pgpass
+      become: true
+      become_user: mangal
+      template:
+        src: pg/.pgpass
+        dest: /var/mangal/.pgpass
+        mode: 0600
     - name: Add Postgis extensions
       become: true
       become_user: postgres
@@ -76,7 +91,7 @@
       notify:
         - start nginx
     - name: configure nginx
-      copy: src={{ item }} dest=/etc/nginx/sites-available/
+      copy: src="{{ item }}" dest=/etc/nginx/sites-available/
       with_fileglob:
         - nginx/*
       notify:
@@ -113,6 +128,8 @@
 
 
   handlers:
+    - name: restart postgresql
+      service: name=postgresql state=restarted
     - name: restart nginx
       service: name=nginx state=restarted
     - name: start nginx
