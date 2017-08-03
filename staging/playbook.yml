@@ -27,8 +27,8 @@
       group: name=mangal state=present
     - name: create mangal user
       user: name=mangal comment="Mangal User" group=mangal home=/var/mangal
-    - name: create node mangal apps directory
-      file: path=/var/mangal state=directory owner=mangal group=mangal mode=0775
+    - name: create postgres user
+      user: name=postgres comment="Postgres User"
     - name: Pull orcid-oauth2 from the repository
       become: true
       become_user: mangal
@@ -109,7 +109,7 @@
       environment:
         ORCID_CLIENTID: APP-HJN4KBNVFLA8E1W5
         ORCID_CLIENTSECRET: d47156b3-5a8d-4da3-bc28-8cc204165243
-        ORCID_CALLBACK: http://localhost/auth/callback
+        ORCID_CALLBACK: http://localhost:8080/auth/callback
         PORT_MANGAL_OAUTH: 3001
       become: true
       become_user: mangal
