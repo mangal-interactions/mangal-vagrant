@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Launching mangal applications might be difficult. Deployment required several backend services: (1) PostgreSQL/PostGIS, (2) Nginx as reverse proxy, (3) pm2 as a node process manager. Vagrant combined with Ansible (provisioner) make our life easier by preparing the entire environment and deploying the apps within an Ubuntu 16.04 virtual machine.
+Launching mangal applications might be difficult as they require several backend services: (1) PostgreSQL/PostGIS, (2) Nginx as reverse proxy, (3) pm2 as a node process manager. Vagrant combined with Ansible (provisioner) make our life easier by preparing the environment, deploying the apps within an Ubuntu 16.04 virtual machine.
 
 ### Install virtualization tools
 
