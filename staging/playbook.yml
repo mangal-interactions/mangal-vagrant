@@ -33,9 +33,13 @@
       apt:                  name="{{ item }}"
       with_items:           "{{ packages }}"
     - name:                 Install packages on mangal-api based on package.json.
+      become:               true
+      become_user:          mangal
       npm:
         path:               ~/mangal-api
     - name:                 Install packages on orcid-oauth2 based on package.json.
+      become:               true
+      become_user:          mangal
       npm:
         path:               ~/orcid-oauth2
     - name:                 Create mangal_bot user
