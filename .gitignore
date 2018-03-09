@@ -1,4 +1,4 @@
-./dev/synced_folder
+/dev/synced_folder/*
 *.retry
 .Vagrant
 .DS_Store

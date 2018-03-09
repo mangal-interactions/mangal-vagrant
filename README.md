@@ -1,4 +1,4 @@
-# Deploy virtual box environment with vagrant
+# Deploy mangal apps with vagrant
 
 # Install
 
@@ -28,30 +28,43 @@ brew install vagrant
 brew install ansible
 ```
 
-# Getting ready on `dev`
+# Getting ready for `dev`
 
-### Clone the mangal-vagrant repo and associated apps
+You can develop the app on your computer. Vagrant watch the changes in the `dev/synced_folder` and notify `nodemon` to restart the modified app.
+
+### Clone the mangal-vagrant and apps repo and install dependencies
 
 ```bash
 git clone --recursive git@github.com:mangal-wg/mangal-vagrant.git
 # If you haven't set your own SSH key
 git clone --recursive https://github.com/mangal-wg/mangal-vagrant.git
-cd coleo-vagrant/dev
+cd mangal-vagrant/dev
+```
+
+Don't forget to install the `npm` dependencies:
+
+```bash
+cd mangal-vagrant/dev/synced_folder
+npm install ./mangal-api
+npm install ./orcid-oauth2
 ```
 
 
 ### Launch the Vm
 
 ```
+cd mangal-vagrant/dev/
 vagrant up --provision
 # Ansible will ask the password to desencrypt ./vars/secret.yml
-# Then Ansible runs the procedure to setup the VM's environment, install dependencies, pull the apps from gitlab.
+# Then Ansible runs the procedure to setup the VM's environment, install dependencies and setup the
 vagrant ssh # Reach the vm
 ```
 
-## Monitoring the load with `pm2`
+## Monitoring the server load with `pm2`
 
 ```bash
+cd mangal-vagrant/dev/
+vagrant ssh
 # The apps are running at the location /var/mangal/ which belongs to the user: mangal
 # To monitor the apps (logs, status etc.)
 sudo su - mangal
@@ -67,6 +80,7 @@ pm2 monit
 ### Accessing the database
 
 ```bash
+cd mangal-vagrant/dev/
 vagrant ssh
 
 ## Connect to postgreSQL as postgres user
@@ -74,11 +88,12 @@ sudo su - postgres
 psql -d mangal_dev
 ```
 
-### Debug - console
+### Accessing the dev console
 
 If you want to have direct access to the logs for each apps with `nodemon` using `tmux`:
 
 ```bash
+cd mangal-vagrant/dev/
 vagrant ssh
 mux
 ```
@@ -87,7 +102,6 @@ mux
 
 The app will be deploy on the server directly from your computer
 Make sure you install ansible on your own computer, then run the following command lines.
-
 
 
 ### Testing deployment
