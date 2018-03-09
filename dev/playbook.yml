@@ -1,0 +1,72 @@
+---
+- hosts:                        all
+  become:                       yes
+  become_method:                sudo
+
+  environment:
+    NODE_ENV:                   development
+
+  vars_files:
+    - vars/public.yml
+    - vars/secret.yml
+
+  pre_tasks:
+    - name:                     Create postgres user
+      user:                     name=postgres comment="Postgres user"
+    - name:                     Install PostgreSQL, Nodejs, tmux dependancies
+      apt:                      name="{{ item }}"
+      with_items:               "{{ packages }}"
+    - name:                     Create mangal_bot user
+      become:                   true
+      become_user:              postgres
+      postgresql_user:
+        name:                   mangal_bot
+        password:               "{{ db_pass }}"
+    - name:                     Create mangal databases
+      become:                   true
+      become_user:              postgres
+      postgresql_db:            name="{{ item }}"
+      with_items:               "{{ dbs }}"
+    - name:                     Add Postgis extensions
+      become:                   true
+      become_user:              postgres
+      postgresql_ext:           name=postgis db="{{ item }}"
+      with_items:               "{{ dbs }}"
+    - name:                     setup .pgpass
+      become:                   true
+      become_user:              vagrant
+      template:
+        src:                    templates/.pgpass.j2
+        dest:                   ~/.pgpass
+        mode:                   0600
+    - name:                     Install nginx
+      apt:                      name=nginx state=present update_cache=yes
+      notify:
+        - start nginx
+    - name:                     configure nginx
+      copy:                     src="{{ item }}" dest=/etc/nginx/sites-available/
+      with_fileglob:
+        - nginx/*
+      notify:
+        - restart nginx
+    - name:                     configure tmux
+      become:                   true
+      become_user:              vagrant
+      copy:                     src="templates/.tmuxinator.yml" dest=~/
+    - name: Install "nodemon" node.js package.
+      npm:
+        name: nodemon
+        global: yes
+    - name: Config tmux
+      shell: |
+        git clone https://github.com/gpakosz/.tmux.git
+        ln -s -f .tmux/.tmux.conf
+        cp .tmux/.tmux.conf.local .
+
+  handlers:
+    - name:                     restart postgresql
+      service:                  name=postgresql state=restarted
+    - name:                     restart nginx
+      service:                  name=nginx state=restarted
+    - name:                     start nginx
+      service:                  name=nginx state=started

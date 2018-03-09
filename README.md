@@ -1,10 +1,12 @@
-## Making mangal as portable applications
+# Deploy virtual box environment with vagrant
 
-## Purpose
+## Prerequirements
 
-Launching mangal applications might be difficult as they require several backend services: (1) PostgreSQL/PostGIS, (2) Nginx as reverse proxy, (3) pm2 as a node process manager. Vagrant combined with Ansible (provisioner) make our life easier by preparing the environment, deploying the apps within an Ubuntu 16.04 virtual machine.
+- VirtualBox (v5.1)
+- Vagrant (v1.9.x)
+- Ansible (Latest version)
 
-### Install virtualization tools
+### Installation on Linux
 
 ```bash
 # Virtual Box
@@ -16,18 +18,56 @@ yum install vagrant_1.9.7_x86_64.rpm
 yum install ansible
 ```
 
-### Getting started
+### Installation on Mac OSX
 
 ```bash
-git clone https://github.com/mangal-wg/mangal-vagrant.git
-cd mangal-vagrant/backend
-vagrant up
+brew install virtualbox
+brew install vagrant
+brew install ansible
 ```
 
-Three command lines to deploy the entire stack: install and configure an Ubuntu 16.04 virtual machine with postgresql, postgis, nodeJS, pm2, nginx and the mangal apps (orcid-oauth2 and mangal-api).
+### Getting ready
 
-### Connect to the VM
+```bash
+git clone git@depot.ielab.usherbrooke.ca:ielab/coleo-vagrant.git
+# If you haven't set your own SSH key
+git clone https://YOUR_CIP@depot.ielab.usherbrooke.ca/ielab/coleo-vagrant.git
 
+cd coleo-vagrant/staging
+vagrant up --provision
+# Ansible will ask the password to desencrypt ./vars/secret.yml
+# Then Ansible runs the procedure to setup the VM's environment, install dependencies, pull the apps from gitlab.
 ```
+
+
+## Connect to the VM
+
+```bash
 vagrant ssh
+
+# The apps are running at the location /var/coleo/ which belongs to the user: coleo
+# To monitor the apps (logs, status etc.)
+sudo su - coleo
+ls -la
+pm2 status
+pm2 logs
+pm2 monit
+
+# see other pm2 command line: http://pm2.keymetrics.io/docs/usage/quick-start/#cheat-sheet
+# logs from nginx at /var/log/nginx
+
+## Connect to postgreSQL as postgres user
+sudo su - postgres
+psql -d coleo_dev
+
 ```
+
+## The Single Page Application
+
+Open the SAP at `http://localhost:8080/portal`
+
+# Log in (nothing sensitive here)
+
+- user: s.vissault@yahoo.for
+- pwd: 2bchanged
+

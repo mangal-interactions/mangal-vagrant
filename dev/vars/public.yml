@@ -5,6 +5,9 @@ packages:
  - python-psycopg2
  - nodejs-legacy
  - npm
+ - tmux
+ - htop
+ - tmuxinator
 
 dbs:
  - mangal

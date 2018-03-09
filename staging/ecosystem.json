@@ -1,0 +1,33 @@
+{
+  "apps" : [{
+    "name"      : "API",
+    "script"    : "app.js",
+    "env": {
+      "COMMON_ENV_VAR": "true"
+    }
+    "env_production": {
+      "NODE_ENV": "production",
+    }
+  },{
+    "name"      : "WEB",
+    "script"    : "web.js"
+  }],
+  "deploy" : {
+    "production" : {
+      "user" : "node",
+      "host" : "212.83.163.1",
+      "repo" : "git@github.com:repo.git",
+      "ref"  : "origin/master",
+      "path" : "/var/www/production",
+      "post-deploy" : "pm2 startOrRestart ecosystem.json --env production"
+    },
+    "dev" : {
+      "user" : "node",
+      "host" : "212.83.163.1",
+      "repo" : "git@github.com:repo.git",
+      "ref"  : "origin/master",
+      "path" : "/var/www/development",
+      "post-deploy" : "pm2 startOrRestart ecosystem.json --env production"
+    }
+  }
+}

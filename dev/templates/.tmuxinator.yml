@@ -1,0 +1,16 @@
+name: main
+root: /var/mangal/apps
+windows:
+  - servers:
+      layout: tiled
+      panes:
+        - orcid-oauth2:
+          - cd orcid-oauth2
+          - nodemon
+        - mangal-api:
+          - cd mangal-api
+          - nodemon
+  - htop:
+      layout: main-vertical
+      panes:
+        - htop
