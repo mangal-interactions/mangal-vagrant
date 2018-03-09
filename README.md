@@ -33,9 +33,9 @@ brew install ansible
 ### Clone the mangal-vagrant repo and associated apps
 
 ```bash
-git clone git@github.com:mangal-wg/mangal-vagrant.git
+git clone --recursive git@github.com:mangal-wg/mangal-vagrant.git
 # If you haven't set your own SSH key
-git clone https://github.com/mangal-wg/mangal-vagrant.git
+git clone --recursive https://github.com/mangal-wg/mangal-vagrant.git
 cd coleo-vagrant/dev
 ```
 
