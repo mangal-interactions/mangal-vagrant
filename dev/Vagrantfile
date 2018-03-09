@@ -12,11 +12,6 @@ Vagrant.configure(2) do |config|
   # with the ansible playbook -- VM seflcontained
   config.vm.synced_folder 'synced_folder', "/var/mangal/apps/", create: true
 
-
-  config.vm.provision "docker" do |d|
-    d.build_image "/vagrant/app"
-  end
-
   config.vm.provision :ansible do |ansible|
     ansible.ask_vault_pass = true
     ansible.playbook = "playbook.yml"
