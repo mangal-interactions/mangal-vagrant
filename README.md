@@ -46,14 +46,12 @@ cd coleo-vagrant/dev
 vagrant up --provision
 # Ansible will ask the password to desencrypt ./vars/secret.yml
 # Then Ansible runs the procedure to setup the VM's environment, install dependencies, pull the apps from gitlab.
+vagrant ssh # Reach the vm
 ```
 
-
-### Connect to the VM and the database
+## Monitoring the load with `pm2`
 
 ```bash
-vagrant ssh
-
 # The apps are running at the location /var/mangal/ which belongs to the user: mangal
 # To monitor the apps (logs, status etc.)
 sudo su - mangal
@@ -64,6 +62,12 @@ pm2 monit
 
 # see other pm2 command line: http://pm2.keymetrics.io/docs/usage/quick-start/#cheat-sheet
 # logs from nginx at /var/log/nginx
+```
+
+### Accessing the database
+
+```bash
+vagrant ssh
 
 ## Connect to postgreSQL as postgres user
 sudo su - postgres
@@ -72,7 +76,7 @@ psql -d mangal_dev
 
 ### Debug - console
 
-If you want to have direct access to the log from each apps with `nodemon` using `tmux`:
+If you want to have direct access to the logs for each apps with `nodemon` using `tmux`:
 
 ```bash
 vagrant ssh
@@ -91,8 +95,7 @@ Make sure you install ansible on your own computer, then run the following comma
 You can test the deployment script locally before sending it to the staging server.
 
 ```bash
-git clone git@depot.ielab.usherbrooke.ca:ielab/coleo-vagrant.git
-
+git clone --recursive git@github.com:mangal-wg/mangal-vagrant.git
 cd mangal-vagrant/staging
 vagrant up --provision
 ```
