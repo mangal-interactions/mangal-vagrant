@@ -56,7 +56,7 @@ npm install ./orcid-oauth2
 cd mangal-vagrant/dev/
 vagrant up --provision
 # Ansible will ask the password to desencrypt ./vars/secret.yml
-# Then Ansible runs the procedure to setup the VM's environment, install dependencies and setup the
+# Then Ansible runs the procedure to setup the VM's environment, install dependencies
 vagrant ssh # Reach the vm
 ```
 
