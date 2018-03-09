@@ -1,0 +1,6 @@
+[submodule "dev/synced_folder/mangal-api"]
+	path = dev/synced_folder/mangal-api
+	url = git@github.com:mangal-wg/mangal-api.git
+[submodule "dev/synced_folder/orcid-oauth2"]
+	path = dev/synced_folder/orcid-oauth2
+	url = git@github.com:mangal-wg/orcid-oauth2.git
