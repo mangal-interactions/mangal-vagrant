@@ -60,6 +60,12 @@
       notify:
         - restart nginx
 
+  environment:
+      ORCID_CLIENTID:     "{{ ORCID_CLIENTID }}"
+      ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
+      ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
+      PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
+
   handlers:
     - name:            restart postgresql
       service:         name=postgresql state=restarted

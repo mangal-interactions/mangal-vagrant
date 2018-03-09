@@ -11,6 +11,15 @@
     - vars/secret.yml
 
   pre_tasks:
+    - name: set environmental variables
+      lineinfile:
+        dest: /etc/environment
+        line: "{{ item }}"
+      with_items:
+        - "ORCID_CLIENTID={{ ORCID_CLIENTID }}"
+        - "ORCID_CLIENTSECRET={{ ORCID_CLIENTSECRET }}"
+        - "ORCID_CALLBACK={{ ORCID_CALLBACK }}"
+        - "PORT_MANGAL_OAUTH={{ PORT_MANGAL_OAUTH }}"
     - name:                     Create postgres user
       user:                     name=postgres comment="Postgres user"
     - name:                     Install PostgreSQL, Nodejs, tmux dependancies
@@ -62,12 +71,6 @@
         git clone https://github.com/gpakosz/.tmux.git
         ln -s -f .tmux/.tmux.conf
         cp .tmux/.tmux.conf.local .
-
-  environment:
-      ORCID_CLIENTID:     "{{ ORCID_CLIENTID }}"
-      ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
-      ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
-      PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
 
   handlers:
     - name:                     restart postgresql

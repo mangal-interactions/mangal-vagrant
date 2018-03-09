@@ -1,6 +1,8 @@
 # Deploy virtual box environment with vagrant
 
-## Prerequirements
+# Install
+
+### Prerequirements
 
 - VirtualBox (v5.1)
 - Vagrant (v1.9.x)
@@ -26,28 +28,35 @@ brew install vagrant
 brew install ansible
 ```
 
-### Getting ready
+# Getting ready on `dev`
+
+### Clone the mangal-vagrant repo and associated apps
 
 ```bash
-git clone git@depot.ielab.usherbrooke.ca:ielab/coleo-vagrant.git
+git clone git@github.com:mangal-wg/mangal-vagrant.git
 # If you haven't set your own SSH key
-git clone https://YOUR_CIP@depot.ielab.usherbrooke.ca/ielab/coleo-vagrant.git
+git clone https://github.com/mangal-wg/mangal-vagrant.git
+cd coleo-vagrant/dev
+```
 
-cd coleo-vagrant/staging
+
+### Launch the Vm
+
+```
 vagrant up --provision
 # Ansible will ask the password to desencrypt ./vars/secret.yml
 # Then Ansible runs the procedure to setup the VM's environment, install dependencies, pull the apps from gitlab.
 ```
 
 
-## Connect to the VM
+### Connect to the VM and the database
 
 ```bash
 vagrant ssh
 
-# The apps are running at the location /var/coleo/ which belongs to the user: coleo
+# The apps are running at the location /var/mangal/ which belongs to the user: mangal
 # To monitor the apps (logs, status etc.)
-sudo su - coleo
+sudo su - mangal
 ls -la
 pm2 status
 pm2 logs
@@ -58,16 +67,32 @@ pm2 monit
 
 ## Connect to postgreSQL as postgres user
 sudo su - postgres
-psql -d coleo_dev
-
+psql -d mangal_dev
 ```
 
-## The Single Page Application
+### Debug - console
 
-Open the SAP at `http://localhost:8080/portal`
+If you want to have direct access to the log from each apps with `nodemon` using `tmux`:
 
-# Log in (nothing sensitive here)
+```bash
+vagrant ssh
+mux
+```
 
-- user: s.vissault@yahoo.for
-- pwd: 2bchanged
+# Deploy `staging`
 
+The app will be deploy on the server directly from your computer
+Make sure you install ansible on your own computer, then run the following command lines.
+
+
+
+### Testing deployment
+
+You can test the deployment script locally before sending it to the staging server.
+
+```bash
+git clone git@depot.ielab.usherbrooke.ca:ielab/coleo-vagrant.git
+
+cd mangal-vagrant/staging
+vagrant up --provision
+```
