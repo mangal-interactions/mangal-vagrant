@@ -1,0 +1,25 @@
+{
+  "apps" : [{
+    "name"      : "mangal-api",
+    "script"    : "index.js",
+    "env_production": {
+      "NODE_ENV": "development",
+    }
+  },{
+    "name"      : "orcid-oauth2",
+    "script"    : "index.js",
+    "env_production": {
+      "NODE_ENV": "development",
+    }
+  }],
+  "deploy" : {
+    "staging" : {
+      "user" : "mangal",
+      "host" : "poisotlab.biol.umontreal.ca",
+      "repo" : "git@github.com:repo.git",
+      "ref"  : "origin/master",
+      "path" : "/var/mangal",
+      "post-deploy" : "pm2 startOrRestart ecosystem.json"
+    }
+  }
+}

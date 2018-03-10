@@ -56,7 +56,7 @@ npm install ./orcid-oauth2
 cd mangal-vagrant/dev/
 vagrant up --provision
 # Ansible will ask the password to desencrypt ./vars/secret.yml
-# Then Ansible runs the procedure to setup the VM's environment, install dependencies
+# and runs the procedure to setup the VM's environment and install dependencies
 vagrant ssh # Reach the vm
 ```
 
@@ -101,8 +101,24 @@ mux
 # Deploy `staging`
 
 The app will be deploy on the server directly from your computer
-Make sure you install ansible on your own computer, then run the following command lines.
+Make sure you install ansible on your own computer and registered your public key on the server (`ssh-copy-id`). After that, you can run the following command lines:
 
+```bash
+cd mangal-vagrant/staging
+ansible-playbook playbook.yml --user=mangal -i host.ini -v --vault-id .vault-pass
+```
+
+The `host.ini` contains the address of the server and `.vault-pass` file, the vault password used to desencrypt `vars/secret.yml` (sensitive informations).
+
+This command line will install and setup on the server:
+
+- postgresql
+- pm2
+- nodejs
+- nginx
+- services and permissions
+
+All about the procedure is describe in `staging/playbook.yml`
 
 ### Testing deployment
 

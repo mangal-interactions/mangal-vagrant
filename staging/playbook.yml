@@ -1,10 +1,7 @@
 ---
-- hosts:               all
+- hosts:               poisotlab
   become:              yes
   become_method:       sudo
-
-  environment:
-    NODE_ENV:          development
 
   vars_files:
     - vars/public.yml
@@ -14,6 +11,15 @@
     - name:            Install PostgreSQL, Nodejs, tmux dependancies
       apt:             name="{{ item }}"
       with_items:      "{{ packages }}"
+    - name: set environmental variables
+      lineinfile:
+        dest: /etc/environment
+        line: "{{ item }}"
+      with_items:
+        - "ORCID_CLIENTID={{ ORCID_CLIENTID }}"
+        - "ORCID_CLIENTSECRET={{ ORCID_CLIENTSECRET }}"
+        - "ORCID_CALLBACK={{ ORCID_CALLBACK }}"
+        - "PORT_MANGAL_OAUTH={{ PORT_MANGAL_OAUTH }}"
 
   tasks:
     - name:            Create mangal group
@@ -59,12 +65,6 @@
         - nginx/*
       notify:
         - restart nginx
-
-  environment:
-      ORCID_CLIENTID:     "{{ ORCID_CLIENTID }}"
-      ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
-      ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
-      PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
 
   handlers:
     - name:            restart postgresql
