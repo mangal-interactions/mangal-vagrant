@@ -5,12 +5,6 @@
     "env_production": {
       "NODE_ENV": "development",
     }
-  },{
-    "name"      : "orcid-oauth2",
-    "script"    : "index.js",
-    "env_production": {
-      "NODE_ENV": "development",
-    }
   }],
   "deploy" : {
     "staging" : {
