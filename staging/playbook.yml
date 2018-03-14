@@ -1,77 +1,118 @@
 ---
-- hosts:               poisotlab
-  become:              yes
-  become_method:       sudo
+- hosts:                    poisotlab
+  become:                   yes
+  become_method:            sudo
 
   vars_files:
     - vars/public.yml
     - vars/secret.yml
 
   pre_tasks:
-    - name: Add NodeJS latest version repository
-      shell: curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-    - name:            Install PostgreSQL, Nodejs, tmux dependancies
-      apt:             name="{{ item }}"
-      with_items:      "{{ packages }}"
-    - name: set environmental variables
-      lineinfile:
-        dest: /etc/environment
-        line: "{{ item }}"
-      with_items:
-        - "ORCID_CLIENTID={{ ORCID_CLIENTID }}"
-        - "ORCID_CLIENTSECRET={{ ORCID_CLIENTSECRET }}"
-        - "ORCID_CALLBACK={{ ORCID_CALLBACK }}"
-        - "PORT_MANGAL_OAUTH={{ PORT_MANGAL_OAUTH }}"
-
-  tasks:
-    - name:            Create mangal group
-      group:           name=mangal state=present
-    - name:            Create mangal user
-      user:            name=mangal comment="Mangal user" group=mangal home=/var/mangal password={{ mangal_pass }}
-    - name:            Create postgres user
-      user:            name=postgres comment="Postgres user"
-    - name:            Create mangal user
-      become:          true
-      become_user:     postgres
+    - name:                 Add NodeJS latest version repository
+      shell:                curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+    - name:                 Install PostgreSQL, Nodejs, tmux dependancies
+      apt:                  name="{{ item }}"
+      with_items:           "{{ packages }}"
+    - name:                 Create mangal group
+      group:                name=mangal state=present
+    - name:                 Create mangal user
+      user:                 name=mangal comment="Mangal user" group=mangal home=/var/mangal
+    - name:                 Create postgres user
+      user:                 name=postgres comment="Postgres user"
+    - name:                 Create mangal user
+      become:               true
+      become_user:          postgres
       postgresql_user:
-        name:          mangal
-        password:      "{{ db_pass }}"
-    - name:            Create mangal databases
-      become:          true
-      become_user:     postgres
-      postgresql_db:   name="{{ item }}"
-      with_items:      "{{ dbs }}"
-    - name:            Add Postgis extensions
-      become:          true
-      become_user:     postgres
-      postgresql_ext:  name=postgis db="{{ item }}"
-      with_items:      "{{ dbs }}"
-    - name:            setup .pgpass
-      become:          true
-      become_user:     mangal
+        name:               mangal
+        password:           "{{ db_pass }}"
+    - name:                 Create mangal databases
+      become:               true
+      become_user:          postgres
+      postgresql_db:        name="{{ item }}"
+      with_items:           "{{ dbs }}"
+    - name:                 Add Postgis extensions
+      become:               true
+      become_user:          postgres
+      postgresql_ext:       name=postgis db="{{ item }}"
+      with_items:           "{{ dbs }}"
+    - name:                 setup .pgpass
+      become:               true
+      become_user:          mangal
       template:
-        src:           templates/.pgpass.j2
-        dest:          ~/.pgpass
-        mode:          0600
-    - name:            Install pm2
+        src:                templates/.pgpass.j2
+        dest:               ~/.pgpass
+        mode:               0600
+    - name:                 Install pm2
       npm:
-        name:          pm2
-        global:        yes
-    - name:            Install nginx
-      apt:             name=nginx state=present update_cache=yes
+        name:               pm2
+        global:             yes
+    - name:                 Install nginx
+      apt:                  name=nginx state=present update_cache=yes
       notify:
         - start nginx
-    - name:            configure nginx
-      copy:            src="{{ item }}" dest=/etc/nginx/sites-available/
+    - name:                 configure nginx
+      copy:                 src="{{ item }}" dest=/etc/nginx/sites-available/
       with_fileglob:
         - nginx/*
       notify:
         - restart nginx
 
+    tasks:
+    - name:                 Pull orcid-oauth2 from the repository
+      become:               true
+      become_user:          mangal
+      git:
+        repo:               https://github.com/mangal-wg/orcid-oauth2.git
+        dest:               ~/orcid-oauth2
+    - name:                 Pull backend from the repository
+      become:               true
+      become_user:          mangal
+      git:
+        repo:               https://github.com/mangal-wg/mangal-backend.git
+        dest:               ~/mangal-api
+    - name:                 Install packages on mangal-api based on package.json.
+      become:               true
+      become_user:          mangal
+      npm:
+        path:               ~/mangal-api
+    - name:                 Install packages on orcid-oauth2 based on package.json.
+      become:               true
+      become_user:          mangal
+      npm:
+        path:               ~/orcid-oauth2
+    - name:                 stop mangal apps
+      command:              pm2 delete all
+      become:               true
+      become_user:          mangal
+      ignore_errors:        yes
+    - name:                 start orcid-oauth2
+      command:              pm2 start ~/orcid-oauth2/index.js --name orcid-oauth2
+      become:               true
+      become_user:          mangal
+      environment:
+        ORCID_CLIENTID:     "{{ ORCID_CLIENTID }}"
+        ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
+        ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
+        PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
+    - name:                 start mangal-api
+      command:              pm2 start ~/mangal-api/index.js --name mangal-api
+      environment:
+        PORT_MANGAL_API:    "{{ PORT_MANGAL_API }}"
+      become:               true
+      become_user:          mangal
+    - name:                 installing startup script
+      become:               yes
+      become_method:        sudo
+      shell:                env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u mangal --hp /var/mangal
+      notify:
+        - start pm2
+
   handlers:
-    - name:            restart postgresql
-      service:         name=postgresql state=restarted
-    - name:            restart nginx
-      service:         name=nginx state=restarted
-    - name:            start nginx
-      service:         name=nginx state=started
+    - name:                 restart postgresql
+      service:              name=postgresql state=restarted
+    - name:                 restart nginx
+      service:              name=nginx state=restarted
+    - name:                 start nginx
+      service:              name=nginx state=started
+    - name:                 start pm2
+      service:              name=pm2-mangal.service state=started
