@@ -27,7 +27,7 @@
     - name:            Create mangal group
       group:           name=mangal state=present
     - name:            Create mangal user
-      user:            name=mangal comment="Mangal user" group=mangal home=/var/mangal
+      user:            name=mangal comment="Mangal user" group=mangal home=/var/mangal password={{ mangal_pass }}
     - name:            Create postgres user
       user:            name=postgres comment="Postgres user"
     - name:            Create mangal user
