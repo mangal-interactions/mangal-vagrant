@@ -5,7 +5,7 @@ server {
     error_log /var/log/nginx/error.log debug;
 
     # Make site accessible;
-    server_name http://poisotlab.biol.umontreal.ca/;
+    server_name poisotlab.biol.umontreal.ca;
 
     location / {
         #First attempt to serve request as file, then
