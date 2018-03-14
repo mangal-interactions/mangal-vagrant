@@ -8,6 +8,8 @@
     - vars/secret.yml
 
   pre_tasks:
+    - name: Add NodeJS latest version repository
+      shell: curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
     - name:            Install PostgreSQL, Nodejs, tmux dependancies
       apt:             name="{{ item }}"
       with_items:      "{{ packages }}"
@@ -28,11 +30,11 @@
       user:            name=mangal comment="Mangal user" group=mangal home=/var/mangal
     - name:            Create postgres user
       user:            name=postgres comment="Postgres user"
-    - name:            Create mangal_bot user
+    - name:            Create mangal user
       become:          true
       become_user:     postgres
       postgresql_user:
-        name:          mangal_bot
+        name:          mangal
         password:      "{{ db_pass }}"
     - name:            Create mangal databases
       become:          true
