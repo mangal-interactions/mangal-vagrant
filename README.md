@@ -105,7 +105,7 @@ Make sure you install ansible on your own computer and registered your public ke
 
 ```bash
 cd mangal-vagrant/staging
-ansible-playbook playbook.yml --user=mangal -i host.ini -v --vault-id .vault-pass
+ansible-playbook playbook.yml --user=mangal -i host.ini --vault-id .vault-pass --ask-sudo-pass
 ```
 
 The `host.ini` contains the address of the server and `.vault-pass` file, the vault password used to desencrypt `vars/secret.yml` (sensitive informations).
