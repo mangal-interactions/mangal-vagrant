@@ -15,11 +15,11 @@
       with_items:           "{{ packages }}"
     - name:                 Create mangal group
       group:                name=mangal state=present
-    - name:                 Create mangal user
+    - name:                 Create mangal UNIX user
       user:                 name=mangal comment="Mangal user" group=mangal home=/var/mangal
     - name:                 Create postgres user
       user:                 name=postgres comment="Postgres user"
-    - name:                 Create mangal user
+    - name:                 Create mangal postgresql user
       become:               true
       become_user:          postgres
       postgresql_user:
@@ -35,13 +35,6 @@
       become_user:          postgres
       postgresql_ext:       name=postgis db="{{ item }}"
       with_items:           "{{ dbs }}"
-    - name:                 setup .pgpass
-      become:               true
-      become_user:          mangal
-      template:
-        src:                templates/.pgpass.j2
-        dest:               ~/.pgpass
-        mode:               0600
     - name:                 Install pm2
       npm:
         name:               pm2
@@ -57,29 +50,31 @@
       notify:
         - restart nginx
 
-    tasks:
+  tasks:
     - name:                 Pull orcid-oauth2 from the repository
       become:               true
       become_user:          mangal
       git:
         repo:               https://github.com/mangal-wg/orcid-oauth2.git
-        dest:               ~/orcid-oauth2
+        dest:               /var/mangal/orcid-oauth2
+        update:             no
     - name:                 Pull backend from the repository
       become:               true
       become_user:          mangal
       git:
         repo:               https://github.com/mangal-wg/mangal-backend.git
-        dest:               ~/mangal-api
+        dest:               /var/mangal/mangal-api
+        update:             no
     - name:                 Install packages on mangal-api based on package.json.
       become:               true
       become_user:          mangal
       npm:
-        path:               ~/mangal-api
+        path:               /var/mangal/mangal-api
     - name:                 Install packages on orcid-oauth2 based on package.json.
       become:               true
       become_user:          mangal
       npm:
-        path:               ~/orcid-oauth2
+        path:               /var/mangal/orcid-oauth2
     - name:                 stop mangal apps
       command:              pm2 delete all
       become:               true
@@ -94,16 +89,16 @@
         ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
         ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
         PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
+        NODE_ENV:           development
     - name:                 start mangal-api
       command:              pm2 start ~/mangal-api/index.js --name mangal-api
       environment:
         PORT_MANGAL_API:    "{{ PORT_MANGAL_API }}"
+        NODE_ENV:           development
       become:               true
       become_user:          mangal
     - name:                 installing startup script
-      become:               yes
-      become_method:        sudo
-      shell:                env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u mangal --hp /var/mangal
+      shell:                pm2 startup systemd -u mangal --hp /var/mangal
       notify:
         - start pm2
 
