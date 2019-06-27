@@ -1,5 +1,5 @@
 ---
-- hosts:                    linode
+- hosts:                    prod
   become:                   yes
   become_method:            sudo
 
@@ -25,6 +25,7 @@
       postgresql_user:
         name:               mangal
         password:           "{{ db_pass }}"
+        encrypted:          yes
     - name:                 Create mangal databases
       become:               true
       become_user:          postgres
@@ -85,16 +86,18 @@
       become:               true
       become_user:          mangal
       environment:
+        PGPASSWORD:         "{{ db_pass }}"
         ORCID_CLIENTID:     "{{ ORCID_CLIENTID }}"
         ORCID_CLIENTSECRET: "{{ ORCID_CLIENTSECRET }}"
         ORCID_CALLBACK:     "{{ ORCID_CALLBACK }}"
         PORT_MANGAL_OAUTH:  "{{ PORT_MANGAL_OAUTH }}"
-        NODE_ENV:           development
+        NODE_ENV:           production
     - name:                 start mangal-api
       command:              pm2 start ~/mangal-api/index.js --name mangal-api
       environment:
+        PGPASSWORD:         "{{ db_pass }}"
         PORT_MANGAL_API:    "{{ PORT_MANGAL_API }}"
-        NODE_ENV:           development
+        NODE_ENV:           production
       become:               true
       become_user:          mangal
     - name:                 installing startup script
@@ -117,6 +120,8 @@
       become:               true
       become_user:          mangal
       shell:                npm run build
+      args: 
+        chdir:              /var/mangal/mangal-app
 
   handlers:
     - name:                 restart postgresql

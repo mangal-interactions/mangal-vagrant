@@ -129,3 +129,11 @@ git clone --recursive git@github.com:mangal-wg/mangal-vagrant.git
 cd mangal-vagrant/staging
 vagrant up --provision
 ```
+
+# Deploy `prod`
+
+```bash
+cd mangal-vagrant/staging
+ssh-copy-id username@addrsrv
+ansible-playbook playbook.yml --user=username -i host.ini --vault-id .vault-pass --ask-sudo-pass
+```
