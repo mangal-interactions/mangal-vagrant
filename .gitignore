@@ -1,5 +1,6 @@
 /dev/synced_folder/*
 *.retry
 .Vagrant
+.vagrant
 .DS_Store
 .vault-pass
