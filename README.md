@@ -8,7 +8,7 @@
 - Vagrant (v1.9.x)
 - Ansible (Latest version)
 
-### Installation on Linux
+### Installation on Fedora
 
 ```bash
 # Virtual Box
@@ -18,6 +18,11 @@ wget https://releases.hashicorp.com/vagrant/1.9.7/vagrant_1.9.7_x86_64.rpm?_ga=2
 yum install vagrant_1.9.7_x86_64.rpm
 # Ansible
 yum install ansible
+```
+
+### Installation Arch
+```bash
+pacman -Syu ansible virtualbox vagrant
 ```
 
 ### Installation on Mac OSX
