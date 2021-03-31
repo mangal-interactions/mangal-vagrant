@@ -26,10 +26,10 @@
       user:            name=postgres comment="Postgres user"
     - name:            Install PostgreSQL, Nodejs, tmux dependencies
       apt:             name="{{ packages }}"
-      - name:                 Create mangal group
-      group:                name=mangal state=present
-    - name:                 Create mangal UNIX user
-      user:                 name=mangal comment="Mangal user" group=mangal home=/var/mangal
+    - name:            Create mangal group
+      group:           name=mangal state=present
+    - name:            Create mangal UNIX user
+      user:            name=mangal comment="Mangal user" group=mangal home=/var/mangal
     - name:            Create user mangal_bot in pgsql
       become:          true
       become_user:     postgres
