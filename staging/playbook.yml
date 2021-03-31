@@ -36,10 +36,6 @@
       become_user:          postgres
       postgresql_ext:       name=postgis db="{{ item }}"
       with_items:           "{{ dbs }}"
-    - name:                 Install pm2
-      npm:
-        name:               pm2
-        global:             yes
     - name:                 Install nginx
       apt:                  name=nginx state=present update_cache=yes
       notify:
@@ -50,6 +46,10 @@
         - nginx/*
       notify:
         - restart nginx
+    - name:                 Install pm2
+      npm:
+        name:               pm2
+        global:             yes
 
   tasks:
     - name:                 Pull orcid-oauth2 from the repository
