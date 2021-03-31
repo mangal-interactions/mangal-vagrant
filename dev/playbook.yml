@@ -2,6 +2,8 @@
 - hosts:               all
   become:              yes
   become_method:       sudo
+  vars:
+    ansible_ssh_pipelining: true
 
   environment:
     NODE_ENV:          development
@@ -22,10 +24,13 @@
         - "PORT_MANGAL_OAUTH={{ PORT_MANGAL_OAUTH }}"
     - name:            Create postgres user
       user:            name=postgres comment="Postgres user"
-    - name:            Install PostgreSQL, Nodejs, tmux dependancies
-      apt:             name="{{ item }}"
-      with_items:      "{{ packages }}"
-    - name:            Create mangal_bot user
+    - name:            Install PostgreSQL, Nodejs, tmux dependencies
+      apt:             name="{{ packages }}"
+      - name:                 Create mangal group
+      group:                name=mangal state=present
+    - name:                 Create mangal UNIX user
+      user:                 name=mangal comment="Mangal user" group=mangal home=/var/mangal
+    - name:            Create user mangal_bot in pgsql
       become:          true
       become_user:     postgres
       postgresql_user:
