@@ -1,7 +1,9 @@
 ---
-- hosts:                    poisotlab
+- hosts:                    arbutus
   become:                   yes
   become_method:            sudo
+  vars:
+    ansible_ssh_pipelining: true
 
   vars_files:
     - vars/public.yml
@@ -9,10 +11,9 @@
 
   pre_tasks:
     - name:                 Add NodeJS latest version repository
-      shell:                curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+      shell:                curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
     - name:                 Install PostgreSQL, Nodejs, tmux dependancies
-      apt:                  name="{{ item }}"
-      with_items:           "{{ packages }}"
+      apt:                  name="{{ packages }}"
     - name:                 Create mangal group
       group:                name=mangal state=present
     - name:                 Create mangal UNIX user
@@ -35,10 +36,6 @@
       become_user:          postgres
       postgresql_ext:       name=postgis db="{{ item }}"
       with_items:           "{{ dbs }}"
-    - name:                 Install pm2
-      npm:
-        name:               pm2
-        global:             yes
     - name:                 Install nginx
       apt:                  name=nginx state=present update_cache=yes
       notify:
@@ -49,6 +46,10 @@
         - nginx/*
       notify:
         - restart nginx
+    - name:                 Install pm2
+      npm:
+        name:               pm2
+        global:             yes
 
   tasks:
     - name:                 Pull orcid-oauth2 from the repository

@@ -2,6 +2,8 @@
 - hosts:                    prod
   become:                   yes
   become_method:            sudo
+  vars:
+    ansible_ssh_pipelining: true
 
   vars_files:
     - vars/public.yml
@@ -9,10 +11,9 @@
 
   pre_tasks:
     - name:                 Add NodeJS latest version repository
-      shell:                curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+      shell:                curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
     - name:                 Install PostgreSQL, Nodejs, tmux dependancies
-      apt:                  name="{{ item }}"
-      with_items:           "{{ packages }}"
+      apt:                  name="{{ packages }}"
     - name:                 Create mangal group
       group:                name=mangal state=present
     - name:                 Create mangal UNIX user
@@ -36,10 +37,10 @@
       become_user:          postgres
       postgresql_ext:       name=postgis db="{{ item }}"
       with_items:           "{{ dbs }}"
-    - name:                 Install pm2
-      npm:
-        name:               pm2
-        global:             yes
+    #- name:                 Install pm2
+    #  npm:
+    #    name:               pm2
+    #    global:             yes
     - name:                 Install nginx
       apt:                  name=nginx state=present update_cache=yes
       notify:
@@ -66,16 +67,16 @@
         repo:               https://github.com/mangal-wg/mangal-backend.git
         dest:               /var/mangal/mangal-api
         update:             no
-    - name:                 Install packages on mangal-api based on package.json.
-      become:               true
-      become_user:          mangal
-      npm:
-        path:               /var/mangal/mangal-api
-    - name:                 Install packages on orcid-oauth2 based on package.json.
-      become:               true
-      become_user:          mangal
-      npm:
-        path:               /var/mangal/orcid-oauth2
+    #- name:                 Install packages on mangal-api based on package.json.
+    #  become:               true
+    #  become_user:          mangal
+    #  npm:
+    #    path:               /var/mangal/mangal-api
+    #- name:                 Install packages on orcid-oauth2 based on package.json.
+    #  become:               true
+    #  become_user:          mangal
+    #  npm:
+    #    path:               /var/mangal/orcid-oauth2
     - name:                 stop mangal apps
       command:              pm2 delete all
       become:               true
@@ -111,11 +112,11 @@
         repo:               https://github.com/mangal-wg/mangal-app.git
         dest:               /var/mangal/mangal-app
         update:             no
-    - name:                 Install packages in mangal-app based on package.json.
-      become:               true
-      become_user:          mangal
-      npm:
-        path:               /var/mangal/mangal-app
+    #- name:                 Install packages in mangal-app based on package.json.
+    #  become:               true
+    #  become_user:          mangal
+    #  npm:
+    #    path:               /var/mangal/mangal-app
     - name:                 Build app
       become:               true
       become_user:          mangal
