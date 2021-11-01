@@ -2,40 +2,14 @@
 
 # Install
 
-### Prerequirements
-
-- VirtualBox (v5.1)
-- Vagrant (v1.9.x)
-- Ansible (Latest version)
-
-### Installation on Fedora
-
 ```bash
-# Virtual Box
-yum install VirtualBox-5.1
-# Vagrant
-wget https://releases.hashicorp.com/vagrant/1.9.7/vagrant_1.9.7_x86_64.rpm?_ga=2.84851217.96389612.1501508263-357158161.1501087142
-yum install vagrant_1.9.7_x86_64.rpm
-# Ansible
-yum install ansible
-```
-
-### Installation Arch
-```bash
-pacman -Syu ansible virtualbox vagrant
-```
-
-### Installation on Mac OSX
-
-```bash
-brew install virtualbox
-brew install vagrant
-brew install ansible
+sudo apt install virtualbox vagrant ansible
 ```
 
 # Getting ready for `dev`
 
-You can develop the app on your computer. Vagrant watch the changes in the `dev/synced_folder` and notify `nodemon` to restart the modified app.
+You can develop the app on your computer. Vagrant watch the changes in the
+`dev/synced_folder` and notify `nodemon` to restart the modified app.
 
 ### Clone the mangal-vagrant and apps repo and install dependencies
 
