@@ -1,15 +1,15 @@
 ---
 packages:
- - postgresql-9.5-postgis-2.2
- - libpq-dev
- - python-psycopg2
- - nodejs-legacy
- - npm
- - tmux
- - htop
- - tmuxinator
+  - postgresql-12-postgis-3
+  - libpq-dev
+  - python3-psycopg2
+  - nodejs
+  - npm
+  - tmux
+  - htop
+  - tmuxinator
 
 dbs:
- - mangal
- - mangal_test
- - mangal_dev
+  - mangal
+  - mangal_test
+  - mangal_dev

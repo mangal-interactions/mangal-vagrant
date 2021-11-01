@@ -2,6 +2,8 @@
 - hosts:               all
   become:              yes
   become_method:       sudo
+  vars:
+    ansible_ssh_pipelining: true
 
   environment:
     NODE_ENV:          development
@@ -23,8 +25,8 @@
     - name:            Create postgres user
       user:            name=postgres comment="Postgres user"
     - name:            Install PostgreSQL, Nodejs, tmux dependancies
-      apt:             name="{{ item }}"
-      with_items:      "{{ packages }}"
+      apt:
+        name: '{{ packages }}'
     - name:            Create mangal_bot user
       become:          true
       become_user:     postgres
