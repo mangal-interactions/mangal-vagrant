@@ -1,5 +1,5 @@
 ---
-- hosts:                    poisotlab
+- hosts:                    all
   become:                   yes
   become_method:            sudo
 
@@ -55,14 +55,14 @@
       become:               true
       become_user:          mangal
       git:
-        repo:               https://github.com/mangal-wg/orcid-oauth2.git
+        repo:               https://github.com/mangal-interactions/orcid-oauth2.git
         dest:               /var/mangal/orcid-oauth2
         update:             no
     - name:                 Pull backend from the repository
       become:               true
       become_user:          mangal
       git:
-        repo:               https://github.com/mangal-wg/mangal-backend.git
+        repo:               https://github.com/mangal-interactions/mangal-api.git
         dest:               /var/mangal/mangal-api
         update:             no
     - name:                 Install packages on mangal-api based on package.json.
