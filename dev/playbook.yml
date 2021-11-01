@@ -13,6 +13,7 @@
     - vars/secret.yml
 
   pre_tasks:
+    
     - name:            set environmental variables
       lineinfile:
         dest:          /etc/environment
@@ -22,27 +23,55 @@
         - "ORCID_CLIENTSECRET={{ ORCID_CLIENTSECRET }}"
         - "ORCID_CALLBACK={{ ORCID_CALLBACK }}"
         - "PORT_MANGAL_OAUTH={{ PORT_MANGAL_OAUTH }}"
-    - name:            Create postgres user
-      user:            name=postgres comment="Postgres user"
-    - name:            Install PostgreSQL, Nodejs, tmux dependancies
+    
+    - name:            Create mangal UNIX group
+      ansible.builtin.group:
+        name: mangal
+        state: present
+    
+    - name:            Create mangal UNIX user
+      ansible.builtin.user:
+        name: mangal
+        comment: "Main user"
+        group: mangal
+        shell: /bin/bash
+        expires: -1
+        home: /var/mangal
+
+    - name: Make sure /var/mangal belongs to the correct user
+      ansible.builtin.file:
+        path: /var/mangal
+        owner: mangal
+        group: mangal 
+
+    - name:            Create postgres UNIX user
+      ansible.builtin.user:
+        name: postgres
+        comment: "Postgres user"
+
+    - name:            Install apt dependencies
       apt:
         name: '{{ packages }}'
+    
     - name:            Create mangal_bot user
       become:          true
       become_user:     postgres
       postgresql_user:
         name:          mangal_bot
         password:      "{{ db_pass }}"
+    
     - name:            Create mangal databases
       become:          true
       become_user:     postgres
       postgresql_db:   name="{{ item }}"
       with_items:      "{{ dbs }}"
+    
     - name:            Add Postgis extensions
       become:          true
       become_user:     postgres
       postgresql_ext:  name=postgis db="{{ item }}"
       with_items:      "{{ dbs }}"
+    
     - name:            setup .pgpass
       become:          true
       become_user:     vagrant
@@ -50,34 +79,49 @@
         src:           templates/.pgpass.j2
         dest:          ~/.pgpass
         mode:          0600
+    
     - name:            Install nginx
-      apt:             name=nginx state=present update_cache=yes
+      apt:
+        name: nginx
       notify:
         - start nginx
+    
     - name:            configure nginx
       copy:            src="{{ item }}" dest=/etc/nginx/sites-available/
       with_fileglob:
         - nginx/*
       notify:
         - restart nginx
+    
     - name:            configure tmux
       become:          true
       become_user:     vagrant
       copy:            src="templates/.tmuxinator.yml" dest=~/
+    
     - name:            Install "nodemon" node.js package.
       npm:
         name:          nodemon
         global:        yes
+    
+    - name:            Install "pm2" node.js package.
+      npm:
+        name:          pm2
+        global:        yes
+
     - name:            Config tmux
-      shell:           |
+      ansible.builtin.shell:           |
         git clone https://github.com/gpakosz/.tmux.git
         ln -s -f .tmux/.tmux.conf
         cp .tmux/.tmux.conf.local .
 
   handlers:
-    - name:            restart postgresql
-      service:         name=postgresql state=restarted
-    - name:            restart nginx
-      service:         name=nginx state=restarted
-    - name:            start nginx
-      service:         name=nginx state=started
+    - name: restart postgresql
+      ansible.builtin.service:
+        name: "postgresql"
+        state: restarted
+
+    - name: restart nginx
+      ansible.builtin.service:
+        name: "postgresql"
+        state: restarted
+
