@@ -3,13 +3,15 @@
 # Install
 
 ```bash
-sudo apt install virtualbox vagrant ansible
+sudo apt npm install virtualbox vagrant ansible
 ```
 
 # Getting ready for `dev`
 
 You can develop the app on your computer. Vagrant watch the changes in the
-`dev/synced_folder` and notify `nodemon` to restart the modified app.
+`dev/synced_folder` and notify `nodemon` to restart the modified app. The synced
+folder will have a copy of the API package (`mangal-api`) and the ORCID
+authentication layer (`orcid-oauth2`).
 
 ### Clone the mangal-vagrant and apps repo and install dependencies
 
@@ -20,16 +22,16 @@ git clone --recursive https://github.com/mangal-wg/mangal-vagrant.git
 cd mangal-vagrant/dev
 ```
 
-Don't forget to install the `npm` dependencies:
+Don't forget to install the `npm` dependencies -- this will assume that all apps
+are stored in the same folder (*e.g.* `mangal/mangal-{app,api,vagrant}`).
 
 ```bash
 cd mangal-vagrant/dev/synced_folder
-npm install ./mangal-api
-npm install ./orcid-oauth2
+npm install ../../../orcid-oauth2/
+npm install ../../../mangal-api/
 ```
 
-
-### Launch the Vm
+### Launch the VM
 
 ```
 cd mangal-vagrant/dev/
